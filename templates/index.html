@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Shield</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        input::-ms-reveal { display: none; }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex items-center justify-center p-6">
+
+    <div class="max-w-xl w-full glass rounded-3xl p-8 shadow-2xl transition-all">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-black text-sky-400 tracking-tighter italic">THE SHIELD <span class="text-xs text-slate-500 not-italic uppercase font-normal tracking-widest ml-2 italic-none"></h1>
+            <p class="text-slate-400 mt-2 text-sm uppercase tracking-widest font-medium italic">Advanced Password Security Auditor & Breach Intelligence</p>
+        </header>
+
+        <div class="space-y-4">
+            <div class="relative">
+                <input type="password" id="target" placeholder="Enter your password here" 
+                       class="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-4 pr-12 focus:ring-2 focus:ring-sky-500 outline-none transition-all text-white">
+                <button onclick="togglePassword()" type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-sky-400">
+                    <span id="eye-icon" class="text-xl">👁️</span>
+                </button>
+            </div>
+            
+            <button onclick="runAudit()" id="auditBtn" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.98]">
+                START AUDIT 
+            </button>
+        </div>
+
+        <div id="report" class="mt-10 hidden space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50 text-center">
+                    <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Security Level</span>
+                    <div id="res-skor" class="text-xl font-bold text-sky-400 mt-1"></div>
+                </div>
+                <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50 text-center">
+                    <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Crack Time</span>
+                    <div id="res-sure" class="text-xl font-semibold mt-1"></div>
+                </div>
+            </div>
+
+            <div id="pwned-box" class="p-4 rounded-xl border transition-all">
+                <h3 id="pwned-title" class="font-bold text-sm flex items-center gap-2"></h3>
+                <p id="pwned-desc" class="text-xs mt-1 opacity-80"></p>
+            </div>
+
+            <div class="bg-slate-800/20 p-5 rounded-xl border border-slate-700/30">
+                <p id="res-uyari" class="text-sm text-orange-300 font-medium mb-3"></p>
+                <ul id="res-oneri" class="text-xs space-y-2 text-slate-400 list-disc list-inside"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enter Key Support
+        document.getElementById('target').addEventListener('keypress', (e) => { if (e.key === 'Enter') runAudit(); });
+
+        function togglePassword() {
+            const input = document.getElementById('target');
+            const icon = document.getElementById('eye-icon');
+            const isPass = input.type === 'password';
+            input.type = isPass ? 'text' : 'password';
+            icon.innerText = isPass ? '🔒' : '👁️';
+        }
+
+        async function runAudit() {
+            const pwd = document.getElementById('target').value;
+            if(!pwd) return;
+
+            const btn = document.getElementById('auditBtn');
+            btn.innerText = "AUDITING...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`/api/v1/audit?password=${encodeURIComponent(pwd)}`);
+                const data = await response.json();
+
+                document.getElementById('report').classList.remove('hidden');
+                document.getElementById('res-skor').innerText = data.summary.level;
+                document.getElementById('res-sure').innerText = data.summary.crack_time;
+                document.getElementById('res-uyari').innerText = data.feedback.warning ? "⚠️ " + data.feedback.warning : "✅ No critical entropy patterns found.";
+                
+                const oneriList = document.getElementById('res-oneri');
+                oneriList.innerHTML = data.feedback.suggestions.map(o => `<li>${o}</li>`).join('') || "<li>Meets basic entropy requirements.</li>";
+
+                const pBox = document.getElementById('pwned-box');
+                const pTitle = document.getElementById('pwned-title');
+                const pDesc = document.getElementById('pwned-desc');
+
+                if (data.intelligence.pwned) {
+                    pBox.className = "p-4 rounded-xl border border-red-500/50 bg-red-900/20 text-red-400";
+                    pTitle.innerHTML = "🔴 CRITICAL BREACH DETECTED";
+                    pDesc.innerText = `This password was found in ${data.intelligence.count} public data leaks. Change it immediately.`;
+                } else {
+                    pBox.className = "p-4 rounded-xl border border-emerald-500/50 bg-emerald-900/20 text-emerald-400";
+                    pTitle.innerHTML = "🟢 NO BREACHES DETECTED";
+                    pDesc.innerText = "No public data leak records were found for this specific entry.";
+                }
+            } catch (err) {
+                alert("Audit service unavailable.");
+            } finally {
+                btn.innerText = "START SECURITY AUDIT";
+                btn.disabled = false;
+            }
+        }
+    </script>
+    <div class="fixed bottom-6 left-6 text-[10px] text-slate-500 uppercase tracking-[0.3em] font-medium vertical-middle">
+    <span class="inline-block w-2 h-2 bg-sky-500 rounded-full mr-2 animate-pulse"></span>
+    Developed by <span class="text-slate-300">Murat Deniz Demir</span>
+</div>
+</body>
+</html>
