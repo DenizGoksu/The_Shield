@@ -3,62 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Shield</title>
+    <title>The Shield | Enterprise Password Audit</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #0f172a; }
+        body { 
+            background-color: #0f172a; 
+            font-family: 'Space Grotesk', sans-serif;
+        }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         input::-ms-reveal { display: none; }
+        .cyber-border { border-left: 4px solid #38bdf8; }
+        /* Animasyonlar için ufak bir ek */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-report { animation: fadeIn 0.5s ease-out forwards; }
     </style>
 </head>
-<body class="text-slate-200 min-h-screen flex items-center justify-center p-6">
+<body class="text-slate-200 min-h-screen flex items-center justify-center p-6 pb-24">
 
-    <div class="max-w-xl w-full glass rounded-3xl p-8 shadow-2xl transition-all">
+    <div class="max-w-xl w-full glass rounded-3xl p-8 shadow-2xl transition-all border border-slate-700/50 relative overflow-hidden">
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-sky-500/10 rounded-full blur-3xl"></div>
+
         <header class="text-center mb-10">
-            <h1 class="text-4xl font-black text-sky-400 tracking-tighter italic">THE SHIELD <span class="text-xs text-slate-500 not-italic uppercase font-normal tracking-widest ml-2 italic-none"></h1>
-            <p class="text-slate-400 mt-2 text-sm uppercase tracking-widest font-medium italic">Advanced Password Security Auditor & Breach Intelligence</p>
+            <h1 class="text-4xl font-bold text-sky-400 tracking-tighter italic">THE SHIELD</h1>
+            <p class="text-slate-400 mt-2 text-[10px] uppercase tracking-[0.2em] font-medium">Advanced Password Security Auditor & Breach Intelligence</p>
         </header>
 
         <div class="space-y-4">
             <div class="relative">
-                <input type="password" id="target" placeholder="Enter your password here" 
-                       class="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-4 pr-12 focus:ring-2 focus:ring-sky-500 outline-none transition-all text-white">
+                <input type="password" id="target" placeholder="Enter password to analyze..." 
+                       class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-4 pr-12 focus:ring-2 focus:ring-sky-500 outline-none transition-all text-white placeholder:text-slate-600 font-light">
                 <button onclick="togglePassword()" type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-sky-400">
                     <span id="eye-icon" class="text-xl">👁️</span>
                 </button>
             </div>
             
-            <button onclick="runAudit()" id="auditBtn" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.98]">
-                START AUDIT 
+            <button onclick="runAudit()" id="auditBtn" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.98] uppercase tracking-widest text-sm">
+                START SECURITY AUDIT 
             </button>
         </div>
 
-        <div id="report" class="mt-10 hidden space-y-6">
+        <div id="report" class="mt-10 hidden space-y-6 animate-report">
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50 text-center">
                     <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Security Level</span>
-                    <div id="res-skor" class="text-xl font-bold text-sky-400 mt-1"></div>
+                    <div id="res-skor" class="text-xl font-bold mt-1 uppercase"></div>
                 </div>
                 <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50 text-center">
-                    <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Crack Time</span>
-                    <div id="res-sure" class="text-xl font-semibold mt-1"></div>
+                    <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Time to Crack</span>
+                    <div id="res-sure" class="text-xl font-medium mt-1 text-slate-200"></div>
                 </div>
             </div>
 
-            <div id="pwned-box" class="p-4 rounded-xl border transition-all">
+            <div id="pwned-box" class="p-4 rounded-xl border transition-all cyber-border">
                 <h3 id="pwned-title" class="font-bold text-sm flex items-center gap-2"></h3>
                 <p id="pwned-desc" class="text-xs mt-1 opacity-80"></p>
             </div>
 
             <div class="bg-slate-800/20 p-5 rounded-xl border border-slate-700/30">
-                <p id="res-uyari" class="text-sm text-orange-300 font-medium mb-3"></p>
-                <ul id="res-oneri" class="text-xs space-y-2 text-slate-400 list-disc list-inside"></ul>
+                <p id="res-uyari" class="text-sm text-orange-300 font-medium mb-3 italic"></p>
+                <ul id="res-oneri" class="text-xs space-y-2 text-slate-400 list-disc list-inside font-light"></ul>
             </div>
         </div>
     </div>
 
+    <div class="fixed bottom-6 left-6 flex items-center gap-3">
+        <div class="flex items-center gap-2 px-4 py-2 bg-slate-900/90 border border-slate-700/50 rounded-full backdrop-blur-sm shadow-2xl">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
+            </span>
+            <span class="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-bold">
+                Developed by <span class="text-sky-400">Murat Deniz Demir</span>
+            </span>
+        </div>
+    </div>
+
     <script>
-        // Enter Key Support
+        // Enter tuşu ile çalıştırma
         document.getElementById('target').addEventListener('keypress', (e) => { if (e.key === 'Enter') runAudit(); });
 
         function togglePassword() {
@@ -74,45 +96,71 @@
             if(!pwd) return;
 
             const btn = document.getElementById('auditBtn');
-            btn.innerText = "AUDITING...";
+            const report = document.getElementById('report');
+            
+            btn.innerText = "AUDITING ENTROPY...";
             btn.disabled = true;
 
             try {
+                // Kendi FastAPI backend adresine göre ayarla
                 const response = await fetch(`/api/v1/audit?password=${encodeURIComponent(pwd)}`);
                 const data = await response.json();
 
-                document.getElementById('report').classList.remove('hidden');
-                document.getElementById('res-skor').innerText = data.summary.level;
+                report.classList.remove('hidden');
+                
+                const crackTime = data.summary.crack_time.toLowerCase();
+                let finalLevel = data.summary.level;
+                let levelColor = "";
+
+                // --- FIX BÖLÜMÜ: SÜRE EŞİĞİ MANTIĞI ---
+                // Saniye, dakika ve saat geçiyorsa her zaman CRITICAL (Hızlı kırılabilir)
+                const isVeryShortTime = crackTime.includes("second") || crackTime.includes("minute") || crackTime.includes("hour");
+                
+                // Yıl, yüzyıl veya ay geçiyorsa SECURE kabul et (Bug giderildi)
+                const isVeryLongTime = crackTime.includes("year") || crackTime.includes("century") || crackTime.includes("month");
+
+                if (data.intelligence.pwned || isVeryShortTime) {
+                    finalLevel = "CRITICAL";
+                    levelColor = "text-red-500";
+                } else if (isVeryLongTime) {
+                    finalLevel = "SECURE";
+                    levelColor = "text-emerald-500";
+                } else {
+                    finalLevel = "VULNERABLE";
+                    levelColor = "text-orange-500";
+                }
+
+                const skorEl = document.getElementById('res-skor');
+                skorEl.innerText = finalLevel;
+                skorEl.className = `text-xl font-bold mt-1 uppercase ${levelColor}`;
+                
                 document.getElementById('res-sure').innerText = data.summary.crack_time;
-                document.getElementById('res-uyari').innerText = data.feedback.warning ? "⚠️ " + data.feedback.warning : "✅ No critical entropy patterns found.";
+                document.getElementById('res-uyari').innerText = data.feedback.warning ? "⚠️ " + data.feedback.warning : "✅ Entropy standards verified.";
                 
                 const oneriList = document.getElementById('res-oneri');
-                oneriList.innerHTML = data.feedback.suggestions.map(o => `<li>${o}</li>`).join('') || "<li>Meets basic entropy requirements.</li>";
+                oneriList.innerHTML = data.feedback.suggestions.map(o => `<li>${o}</li>`).join('') || "<li>Password meets security policy requirements.</li>";
 
                 const pBox = document.getElementById('pwned-box');
                 const pTitle = document.getElementById('pwned-title');
                 const pDesc = document.getElementById('pwned-desc');
 
                 if (data.intelligence.pwned) {
-                    pBox.className = "p-4 rounded-xl border border-red-500/50 bg-red-900/20 text-red-400";
-                    pTitle.innerHTML = "🔴 CRITICAL BREACH DETECTED";
-                    pDesc.innerText = `This password was found in ${data.intelligence.count} public data leaks. Change it immediately.`;
+                    pBox.className = "p-4 rounded-xl border border-red-500/50 bg-red-900/20 text-red-400 cyber-border";
+                    pTitle.innerHTML = "🔴 DATA BREACH DETECTED";
+                    pDesc.innerText = `Found in ${data.intelligence.count} known leaks. This entry is compromised.`;
                 } else {
-                    pBox.className = "p-4 rounded-xl border border-emerald-500/50 bg-emerald-900/20 text-emerald-400";
-                    pTitle.innerHTML = "🟢 NO BREACHES DETECTED";
-                    pDesc.innerText = "No public data leak records were found for this specific entry.";
+                    pBox.className = "p-4 rounded-xl border border-emerald-500/50 bg-emerald-900/20 text-emerald-400 cyber-border";
+                    pTitle.innerHTML = "🟢 NO BREACHES FOUND";
+                    pDesc.innerText = "This entry has not been identified in public data leaks.";
                 }
             } catch (err) {
-                alert("Audit service unavailable.");
+                console.error(err);
+                alert("Audit service connection error. Please try again.");
             } finally {
                 btn.innerText = "START SECURITY AUDIT";
                 btn.disabled = false;
             }
         }
     </script>
-    <div class="fixed bottom-6 left-6 text-[10px] text-slate-500 uppercase tracking-[0.3em] font-medium vertical-middle">
-    <span class="inline-block w-2 h-2 bg-sky-500 rounded-full mr-2 animate-pulse"></span>
-    Developed by <span class="text-slate-300">Murat Deniz Demir</span>
-</div>
 </body>
 </html>
